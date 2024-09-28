@@ -21,7 +21,7 @@ jobs:
       - name: Deploy to Azure VM
         run: |
           ssh -tt -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
-            cd ~/DivBot-2.0/Bot
+            cd ~/DivBot-2.0
             git pull origin main
             pm2 restart 0
           EOF
