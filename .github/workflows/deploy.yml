@@ -3,7 +3,7 @@ name: Deploy Bot to Azure VM
 on:
   push:
     branches:
-      - main  # Change 'main' to the branch you want to deploy
+      - master  # Change 'main' to the branch you want to deploy
 
 jobs:
   deploy:
