@@ -26,7 +26,7 @@ const client = new Client({
         status: "dnd",
         activities: [
             {
-                name: "with DivBot ;)",
+                name: "with DivBot ❤️",
                 type: ActivityType.Playing
             }
         ]
