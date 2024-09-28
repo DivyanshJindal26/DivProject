@@ -15,6 +15,6 @@ module.exports = {
         const botLatency = interaction.client.ws.ping;
 
         // Edit the reply to include both latencies
-        await interaction.editReply(`Pong! Response latency: ${responseLatency}ms. WebSocket ping: ${botLatency}ms.`);
+        await interaction.editReply(`Ponaaag! Response latency: ${responseLatency}ms. WebSocket ping: ${botLatency}ms.`);
     },
 };
