@@ -33,6 +33,13 @@ const client = new Client({
     }
 })
 
+// registering modals
+const modalHandlerFiles = fs.readdirSync('./commands/modal').filter(file => file.endsWith('.js'));
+for (const file of modalHandlerFiles) {
+    const modalHandler = require(`./commands/modal/${file}`);
+    commandHandler.registerModalHandler('userLogin', modalHandler.execute);  // Register modal handler with its customId
+}
+
 // setting up slash commands from ./commands/slash
 // Load slash commands
 const slashCommandsPath = path.join(__dirname, 'commands/slash');
@@ -64,9 +71,11 @@ const rest = new REST().setToken(BOT_TOKEN);
     }
 })();
 
+
+
 // accepting interactions
 client.on('interactionCreate', async interaction => {
-    if (!interaction.isCommand()) return;
+    if (!interaction.isCommand() && !interaction.isModalSubmit()) return;
     await commandHandler.handleInteraction(interaction);
 });
 
