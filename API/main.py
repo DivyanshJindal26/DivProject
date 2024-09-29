@@ -138,7 +138,7 @@ def getUser():
     except:
         pass
     
-@app.route('/user/logout',methods='POST')
+@app.route('/user/logout',methods=['POST'])
 def logout():
     user = getUser()
     
