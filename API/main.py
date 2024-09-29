@@ -130,12 +130,28 @@ def verifyOTP():
     
     return jsonify({"message":"successfully changed user's password"}), 200
 
+
 def getUser():
     try:
         user = userDB.find_one({"token":request.headers.get('Authorization')})
         return user
     except:
         pass
+    
+@app.route('/user/logout',methods='POST')
+def logout():
+    user = getUser()
+    
+    if not user:
+        return jsonify({"message":"User not found. Login again"}), 403
+    
+    if not authCheck(request):
+        return jsonify({"message":"Not Authorised"}), 403
+    
+    userDB.update_one({"_id": user["_id"]}, {"$unset": {"token": ""}})
+    
+    return jsonify({"message":"Successfully logged out"}), 200
+    
     
 @app.route('/users',methods=['GET'])
 def getAllUsers():
