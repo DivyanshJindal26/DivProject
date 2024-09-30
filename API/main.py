@@ -16,6 +16,7 @@ app.config["MONGO_URI"] = config.MONGODB
 mongo = PyMongo(app)
 userDB = mongo.db.users
 todoDB = mongo.db.todos
+discordDB = mongo.db.discord
 
 # auth key
 def authCheck(request):
@@ -143,12 +144,13 @@ def logout():
     user = getUser()
     
     if not user:
-        return jsonify({"message":"User not found. Login again"}), 403
+        return jsonify({"message":"User not found. Login again"}), 404
     
     if not authCheck(request):
         return jsonify({"message":"Not Authorised"}), 403
     
     userDB.update_one({"_id": user["_id"]}, {"$unset": {"token": ""}})
+    discordDB.update_one({"tokens":user['token']}, {"$unset":{"tokens":""}})
     
     return jsonify({"message":"Successfully logged out"}), 200
     
