@@ -11,10 +11,7 @@ module.exports = {
         // Calculate interaction latency
         const responseLatency = sent.createdTimestamp - interaction.createdTimestamp;
 
-        // Get the bot's WebSocket ping
-        const botLatency = interaction.client.ws.ping;
-
         // Edit the reply to include both latencies
-        await interaction.editReply(`Ponaaag! Response latency: ${responseLatency}ms. WebSocket ping: ${botLatency}ms.`);
+        await interaction.editReply(`Ponaaag! Response latency: ${responseLatency}ms.`);
     },
 };

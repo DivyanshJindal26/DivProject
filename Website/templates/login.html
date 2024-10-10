@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <title>Login / Sign Up Form</title>
+    <link rel="shortcut icon" href="/assets/favicon.ico">
+    
+    <!-- Font Awesome for Icons (Optional, if you plan to use icons) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      integrity="sha512-Fo3rlrQkTyYXBnKlR6d49cHPQRbZsxWuxakONql+NyaJYxG9QX+0KgvM+xwKxZTwrPheMY5EMkh4M5sHsYxgvA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <style>
+        /* Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            --color-primary: #009579;
+            --color-primary-dark: #007f67;
+            --color-secondary: #252c6a;
+            --color-error: #cc3333;
+            --color-success: #4bb544;
+            --border-radius: 4px;
+
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            background: url(./background.jpg) no-repeat center center fixed;
+            background-size: cover;
+            position: relative; /* To position the logo and button absolutely within the body */
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        /* Logo Styles */
+        .logo-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .logo-container a img {
+            width: 60px; /* Adjust the size as needed */
+            height: 60px;
+            border-radius: 50%; /* Makes the logo circular */
+            object-fit: cover; /* Ensures the image fills the container */
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .logo-container a img:hover {
+            transform: scale(1.05); /* Slight zoom effect on hover */
+        }
+
+        /* Home Button Styles */
+        .home-button-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+
+        .home-button-container a {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #4891ff;
+            color: #fff;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .home-button-container a:hover {
+            background: #367be2; /* Darker shade on hover */
+            transform: scale(1.05); /* Slight zoom effect on hover */
+        }
+
+        /* Container Styles */
+        .container {
+            width: 400px;
+            max-width: 90%; /* Responsive max-width */
+            margin: 2rem auto; /* Center the container with top margin */
+            padding: 2rem;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.2);
+            border-radius: var(--border-radius);
+            background: #ffffff;
+            z-index: 1; /* Ensure it stays above the background */
+        }
+
+        .form,
+        .form__input,
+        .form__button {
+            font: 500 1rem 'Quicksand', sans-serif;
+        }
+
+        .form--hidden {
+            display: none;
+        }
+
+        .form > *:first-child {
+            margin-top: 0;
+        }
+
+        .form > *:last-child {
+            margin-bottom: 0;
+        }
+
+        .form__title {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .form__message {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .form__message--success {
+            color: var(--color-success);
+        }
+
+        .form__message--error {
+            color: var(--color-error);
+        }
+
+        .form__input-group {
+            margin-bottom: 1rem;
+        }
+
+        .form__input {
+            display: block;
+            width: 100%;
+            padding: 0.75rem;
+            box-sizing: border-box;
+            border-radius: var(--border-radius);
+            border: 1px solid #dddddd;
+            outline: none;
+            background: #eeeeee;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .form__input:focus {
+            border-color: var(--color-primary);
+            background: #ffffff;
+        }
+
+        .form__input--error {
+            color: var(--color-error);
+            border-color: var(--color-error);
+        }
+
+        .form__input-error-message {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--color-error);
+        }
+
+        .form__button {
+            width: 100%;
+            padding: 1rem 2rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #ffffff;
+            border: none;
+            border-radius: var(--border-radius);
+            outline: none;
+            cursor: pointer;
+            background: var(--color-primary);
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .form__button:hover {
+            background: var(--color-primary-dark);
+        }
+
+        .form__button:active {
+            transform: scale(0.98);
+        }
+
+        .form__text {
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .form__link {
+            color: var(--color-secondary);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .form__link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 500px) {
+            .logo-container a img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .home-button-container a {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Logo Container (Top Left) -->
+    <div class="logo-container">
+        <a href="/">
+            <img src="../static/logo.jpg" alt="Homepage Logo">
+        </a>
+    </div>
+
+    <!-- Home Button Container (Top Right) -->
+    <div class="home-button-container">
+        <a href="/">Return to Home Page</a>
+    </div>
+
+    <!-- Login / Sign Up Form Container -->
+    <div class="container">
+        <form class="form" id="login">
+            <h1 class="form__title">Login</h1>
+            <div class="form__message form__message--error"></div>
+            <div class="form__input-group">
+                <input type="text" class="form__input" id="loginUsername" placeholder="Username" required>
+                <div class="form__input-error-message"></div>
+            </div>
+            <div class="form__input-group">
+                <input type="password" class="form__input" id="loginPassword" placeholder="Password" required>
+                <div class="form__input-error-message"></div>
+            </div>
+            <button class="form__button" type="submit">Continue</button>
+            <p class="form__text">
+                <a href="forgotPassword" class="form__link">Forgot your password?</a>
+            </p>
+            <p class="form__text">
+                <a class="form__link" href="#" id="linkCreateAccount">Don't have an account? Create account</a>
+            </p>
+        </form>
+        <form class="form form--hidden" id="createAccount">
+            <h1 class="form__title">Create Account</h1>
+            <div class="form__message form__message--error"></div>
+            <div class="form__input-group">
+                <input type="text" id="signupUsername" class="form__input" placeholder="Username" required>
+                <div class="form__input-error-message"></div>
+            </div>
+            <div class="form__input-group">
+                <input type="email" id="signupEmail" class="form__input" placeholder="Email Address" required>
+                <div class="form__input-error-message"></div>
+            </div>
+            <div class="form__input-group">
+                <input type="password" id="signupPassword" class="form__input" placeholder="Password" required>
+                <div class="form__input-error-message"></div>
+            </div>
+            <div class="form__input-group">
+                <input type="password" id="signupConfirmPassword" class="form__input" placeholder="Confirm Password" required>
+                <div class="form__input-error-message"></div>
+            </div>
+            <button class="form__button" type="submit">Continue</button>
+            <p class="form__text">
+                <a class="form__link" href="#" id="linkLogin">Already have an account? Sign in</a>
+            </p>
+        </form>
+    </div>
+
+    <script>
+        // Form Handling Functions
+        function setFormMessage(formElement, type, message) {
+            const messageElement = formElement.querySelector(".form__message");
+            messageElement.textContent = message;
+            messageElement.classList.remove("form__message--success", "form__message--error");
+            messageElement.classList.add(`form__message--${type}`);
+        }
+
+        function setInputError(inputElement, message) {
+            inputElement.classList.add("form__input--error");
+            const errorMessage = inputElement.parentElement.querySelector(".form__input-error-message");
+            if (errorMessage) {
+                errorMessage.textContent = message;
+            }
+        }
+
+        function clearInputError(inputElement) {
+            inputElement.classList.remove("form__input--error");
+            const errorMessage = inputElement.parentElement.querySelector(".form__input-error-message");
+            if (errorMessage) {
+                errorMessage.textContent = "";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginForm = document.querySelector("#login");
+            const createAccountForm = document.querySelector("#createAccount");
+
+            // Toggle between Login and Create Account Forms
+            document.querySelector("#linkCreateAccount").addEventListener("click", e => {
+                e.preventDefault();
+                loginForm.classList.add("form--hidden");
+                createAccountForm.classList.remove("form--hidden");
+            });
+
+            document.querySelector("#linkLogin").addEventListener("click", e => {
+                e.preventDefault();
+                loginForm.classList.remove("form--hidden");
+                createAccountForm.classList.add("form--hidden");
+            });
+
+            // Handle Login Form Submission
+            loginForm.addEventListener("submit", e => {
+                e.preventDefault();
+                
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+
+                // Send login data to backend
+                fetch('http://127.0.0.1:5000/api/user/login', {
+                    method: 'POST',
+                    headers: {
+                        'X-API-KEY': 'divyanshjindal',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username: username, password: password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.token) {
+                        sessionStorage.setItem('authToken', data.token);
+                        setFormMessage(loginForm, 'success', 'Logged in successfully.');
+                        window.location.href = 'dashboard';
+                    } else {
+                        setFormMessage(loginForm, 'error', data.message || 'Login failed!');
+                    }
+                })
+                .catch(error => {
+                    setFormMessage(loginForm, 'error', 'Login failed: ' + error.message);
+                });
+            });
+
+            // Handle Create Account Form Submission
+            createAccountForm.addEventListener("submit", e => {
+                e.preventDefault();
+
+                const username = document.getElementById('signupUsername').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+                const confirmPassword = document.getElementById('signupConfirmPassword').value;
+
+                if (password !== confirmPassword) {
+                    setFormMessage(createAccountForm, 'error', 'Passwords do not match.');
+                    return;
+                }
+
+                // Send signup data to backend
+                fetch('http://127.0.0.1:5000/api/user/create', { // Ensure the full URL is used
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-KEY': 'divyanshjindal',
+                    },
+                    body: JSON.stringify({ username, email, password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        setFormMessage(createAccountForm, 'success', 'Account created successfully. You can now log in.');
+                        createAccountForm.classList.add("form--hidden");
+                        loginForm.classList.remove("form--hidden");
+                    } else {
+                        setFormMessage(createAccountForm, 'error', data.message || 'Error during signup');
+                    }
+                })
+                .catch(error => {
+                    setFormMessage(createAccountForm, 'error', 'An error occurred during signup');
+                });
+            });
+
+            // Input Validation for Create Account Form
+            document.querySelectorAll(".form__input").forEach(inputElement => {
+                inputElement.addEventListener("blur", e => {
+                    if (e.target.id === "signupUsername" && e.target.value.length > 0 && e.target.value.length < 5) {
+                        setInputError(inputElement, "Username must be at least 5 characters in length");
+                    }
+                });
+
+                inputElement.addEventListener("input", e => {
+                    clearInputError(inputElement);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
