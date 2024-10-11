@@ -6,14 +6,6 @@
     <title>Login / Sign Up Form</title>
     <link rel="shortcut icon" href="/assets/favicon.ico">
     
-    <!-- Font Awesome for Icons (Optional, if you plan to use icons) -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-      integrity="sha512-Fo3rlrQkTyYXBnKlR6d49cHPQRbZsxWuxakONql+NyaJYxG9QX+0KgvM+xwKxZTwrPheMY5EMkh4M5sHsYxgvA=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
 
     <style>
         /* Base Styles */
@@ -203,6 +195,26 @@
             text-decoration: underline;
         }
 
+        .spinner {
+            border: 16px solid #f3f3f3; /* Light grey */
+            border-top: 16px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+            display: none; /* Hidden by default */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+        }
+
+
         /* Responsive Adjustments */
         @media (max-width: 500px) {
             .logo-container a img {
@@ -230,6 +242,8 @@
     <div class="home-button-container">
         <a href="/">Return to Home Page</a>
     </div>
+
+    <div id="spinner" class="spinner"></div>
 
     <!-- Login / Sign Up Form Container -->
     <div class="container">
@@ -319,14 +333,17 @@
                 loginForm.classList.remove("form--hidden");
                 createAccountForm.classList.add("form--hidden");
             });
+            const spinner = document.getElementById('spinner');
 
             // Handle Login Form Submission
             loginForm.addEventListener("submit", e => {
                 e.preventDefault();
+                const form = e.target;
+                spinner.style.display = 'block';
                 
                 const username = document.getElementById('loginUsername').value;
                 const password = document.getElementById('loginPassword').value;
-
+                setFormMessage(loginForm, 'error', 'Please wait...');
                 // Send login data to backend
                 fetch('http://127.0.0.1:5000/api/user/login', {
                     method: 'POST',
@@ -338,15 +355,18 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    spinner.style.display = 'none';
                     if (data.token) {
+                        form.reset();
                         sessionStorage.setItem('authToken', data.token);
                         setFormMessage(loginForm, 'success', 'Logged in successfully.');
-                        window.location.href = 'dashboard';
+                        // window.location.href = 'dashboard';
                     } else {
                         setFormMessage(loginForm, 'error', data.message || 'Login failed!');
                     }
                 })
                 .catch(error => {
+                    spinner.style.display = 'none';
                     setFormMessage(loginForm, 'error', 'Login failed: ' + error.message);
                 });
             });
@@ -354,7 +374,8 @@
             // Handle Create Account Form Submission
             createAccountForm.addEventListener("submit", e => {
                 e.preventDefault();
-
+                const form=e.target;
+                spinner.style.display = 'block';
                 const username = document.getElementById('signupUsername').value;
                 const email = document.getElementById('signupEmail').value;
                 const password = document.getElementById('signupPassword').value;
@@ -364,7 +385,7 @@
                     setFormMessage(createAccountForm, 'error', 'Passwords do not match.');
                     return;
                 }
-
+                setFormMessage(createAccountForm, 'error', 'Please wait...');
                 // Send signup data to backend
                 fetch('http://127.0.0.1:5000/api/user/create', { // Ensure the full URL is used
                     method: 'POST',
@@ -376,15 +397,18 @@
                 })
                 .then(response => response.json())
                 .then(data => {
+                    spinner.style.display = 'none';
                     if (data.success) {
                         setFormMessage(createAccountForm, 'success', 'Account created successfully. You can now log in.');
                         createAccountForm.classList.add("form--hidden");
                         loginForm.classList.remove("form--hidden");
+                        form.reset();
                     } else {
                         setFormMessage(createAccountForm, 'error', data.message || 'Error during signup');
                     }
                 })
                 .catch(error => {
+                    spinner.style.display = 'none';
                     setFormMessage(createAccountForm, 'error', 'An error occurred during signup');
                 });
             });
