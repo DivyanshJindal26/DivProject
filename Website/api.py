@@ -1,22 +1,25 @@
-from flask import Flask, request, jsonify
+from flask import Blueprint, Flask, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_pymongo import PyMongo
-import os
-import resetPwd
 import jwt
 import datetime
 from functools import wraps
 
+
+import resetPwd
 import config
 
-app = Flask(__name__)
+api = Flask(__name__)
 
 # mongodb connection
-app.config["MONGO_URI"] = config.MONGODB
-mongo = PyMongo(app)
+api.config["MONGO_URI"] = config.MONGODB
+mongo = PyMongo(api)
 userDB = mongo.db.users
 todoDB = mongo.db.todos
 discordDB = mongo.db.discord
+
+# creating blueprint
+api = Blueprint('api', __name__)
 
 # auth key
 def authCheck(request):
@@ -29,7 +32,7 @@ def authCheck(request):
 
 
 # creating new user
-@app.route('/user/create',methods=['POST'])
+@api.route('/api/user/create',methods=['POST'])
 def createUser():
     if not authCheck(request):
         return jsonify({"message":"Not Authorised"}), 403
@@ -53,7 +56,7 @@ def createUser():
     return jsonify({"message":"User successfully created"}) , 200
 
 # logging into a user
-@app.route('/user/login', methods=['POST'])
+@api.route('/api/user/login', methods=['POST'])
 def loginUser():
     if not authCheck(request):
         return jsonify({"message": "Not Authorised"}), 403
@@ -81,7 +84,7 @@ def loginUser():
     return jsonify({"message": "Successfully logged in","token":token}), 201
 
 # forget password
-@app.route('/user/forgot-password', methods=["POST"])
+@api.route('/api/user/forgot-password', methods=["POST"])
 def forget():
     if not authCheck(request):
         return jsonify({"message": "Not Authorised"}), 403
@@ -104,7 +107,7 @@ def forget():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/user/verify-otp',methods=['POST'])
+@api.route('/api/user/verify-otp',methods=['POST'])
 def verifyOTP():
 
     if not authCheck(request):
@@ -139,7 +142,7 @@ def getUser():
     except:
         pass
     
-@app.route('/user/logout',methods=['POST'])
+@api.route('/api/user/logout',methods=['POST'])
 def logout():
     user = getUser()
     
@@ -155,7 +158,7 @@ def logout():
     return jsonify({"message":"Successfully logged out"}), 200
     
     
-@app.route('/users',methods=['GET'])
+@api.route('/api/users',methods=['GET'])
 def getAllUsers():
     user = getUser()
     if not user:
@@ -171,7 +174,7 @@ def getAllUsers():
             "username": user['username'],
             "email": user['email']
         }
-        user_list.append(user_data)
+        user_list.apiend(user_data)
 
     return jsonify({"users": user_list}), 200
 
@@ -182,7 +185,7 @@ def getAllUsers():
 # TODO LIST SHIT STARTS
 
 # viewing all the todos of a user
-@app.route('/todo/view',methods=["GET"])
+@api.route('/api/todo/view',methods=["GET"])
 def getTodos():
     
     user = getUser()
@@ -201,7 +204,7 @@ def getTodos():
     return jsonify(usertodos), 200
 
 # creating a new todo
-@app.route('/todo/create',methods=['POST'])
+@api.route('/api/todo/create',methods=['POST'])
 def createTodo():
     
     user = getUser()
@@ -242,7 +245,7 @@ def createTodo():
     return jsonify({"message":"Todo added successfully","ID":old['todo_count']+1}), 200
     
 # editing a todo
-@app.route('/todo/edit',methods=['PATCH'])
+@api.route('/api/todo/edit',methods=['PATCH'])
 def editTodo():
     user = getUser()
     
@@ -280,7 +283,7 @@ def editTodo():
     
     return jsonify({"message":"Successfully edited the said todo"}), 200
 
-@app.route('/todo/delete',methods=['DELETE'])
+@api.route('/api/todo/delete',methods=['DELETE'])
 def deleteTodo():
     user = getUser()
     
@@ -301,7 +304,7 @@ def deleteTodo():
     newList = []
     for todo in todoList:
         if not todo['id'] == id:
-            newList.append(todo)
+            newList.apiend(todo)
             
     todoDB.update_one(
         {"_id": user["_id"]},
@@ -311,4 +314,4 @@ def deleteTodo():
     return jsonify({"message":"Successfully deleted the todo task."})
     
 if __name__ == '__main__':
-    app.run(debug=True, threaded=False)
+    api.run(debug=True, threaded=False)

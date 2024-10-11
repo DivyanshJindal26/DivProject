@@ -37,7 +37,7 @@ module.exports = {
                 await modalHandler(interaction);
             } catch (error) {
                 console.error(error);
-                await interaction.reply({ content: 'Error in this modal submission.', ephemeral: true });
+                await interaction.editReply({ content: 'Error in this modal submission.', ephemeral: true });
             }
         }
     },

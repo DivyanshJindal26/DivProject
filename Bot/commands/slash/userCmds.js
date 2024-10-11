@@ -121,5 +121,27 @@ module.exports = {
 
             await interaction.showModal(modal);
         }
+
+        if (subcommand == 'forgot-password') {
+        const modal = new ModalBuilder()
+            .setCustomId('forgotPassword')
+            .setTitle('Forgot Password')
+        const usernameOption = new TextInputBuilder()
+            .setCustomId('forgot-username')
+            .setLabel('Username')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true)
+        const passwordOption = new TextInputBuilder()
+            .setCustomId('forgot-email')
+            .setLabel('Email')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true)
+
+        const firstActionRow = new ActionRowBuilder().addComponents(usernameOption);
+        const secondActionRow = new ActionRowBuilder().addComponents(passwordOption);
+        modal.addComponents(firstActionRow, secondActionRow);
+
+        await interaction.showModal(modal);
+        }
     }
 }

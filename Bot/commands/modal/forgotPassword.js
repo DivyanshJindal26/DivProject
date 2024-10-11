@@ -6,16 +6,16 @@ module.exports = {
     name: Events.InteractionCreate,
     async execute(interaction) {
         if (interaction.isModalSubmit()) {
-            if (interaction.customId === 'userLogin') {
+            if (interaction.customId === 'forgotPassword') {
                 // Get the user's input from the modal
-                const username = interaction.fields.getTextInputValue('login-username');
-                const password = interaction.fields.getTextInputValue('login-password');
+                const username = interaction.fields.getTextInputValue('forgot-username');
+                const email = interaction.fields.getTextInputValue('forgot-email');
 
                 try {
                     // Defer reply to avoid the 3-second timeout
                     await interaction.deferReply({ ephemeral: true });
 
-                    const response = await fetch('http://127.0.0.1:5000/user/login', {
+                    const response = await fetch('http://127.0.0.1:5000/user/forgot-password', {
                         method: 'POST',
                         headers: {
                             'X-API-KEY': 'divyanshjindal',
@@ -23,7 +23,7 @@ module.exports = {
                         },
                         body: JSON.stringify({
                             username: username,
-                            password: password,
+                            email: email,
                         }),
                     });
 
@@ -31,25 +31,14 @@ module.exports = {
                         throw new Error('HTTP error ' + response.status);
                     }
 
-                    const data = await response.json();
-                    const userDB = getDb().collection('discord');
-                    const token = data.token;
-                    const userid = interaction.user.id;
-
-                    await userDB.updateOne(
-                        { userid: userid },
-                        { $set: { tokens: token } },
-                        { upsert: true }
-                    );
-
                     // Edit the deferred reply with the success message
                     await interaction.editReply({
-                        content: `Successfully logged into \`${username}\`.`,
+                        content: `OTP Successfully sent to your email. Please input the OTP you received in \`user verify-otp\``,
                     });
                 } catch (error) {
                     console.error('Error: ', error);
                     await interaction.editReply({
-                        content: 'Failed to log in. Please try again.',
+                        content: 'Failed to send OTP. Invalid email or username.',
                     });
                 }
             }
