@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Chatbot</title>
+    <link rel="stylesheet" href="../static/rag.css">
+    <!-- Include Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Include MathJax for mathematical rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>PDF Chatbot</h1>
+
+        <!-- PDF Upload Section -->
+        <form id="pdf-form">
+            <label for="pdf-files">Upload PDF Files:</label>
+            <input type="file" id="pdf-files" name="pdf-files" accept=".pdf" multiple required>
+            <button type="submit">Upload PDFs</button>
+        </form>
+
+        <!-- Chat Section -->
+        <div id="chat-container">
+            <div id="chat-messages"></div>
+            <div id="input-container">
+                <input type="text" id="query-input" placeholder="Type your question here..." autocomplete="off">
+                <button id="send-query">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript to handle PDF upload and queries -->
+    <script>
+        document.getElementById("pdf-form").onsubmit = async function (event) {
+            event.preventDefault();
+            const formData = new FormData();
+            const files = document.getElementById("pdf-files").files;
+            for (let i = 0; i < files.length; i++) {
+                formData.append("pdf_files", files[i]);
+            }
+            const response = await fetch("http://127.0.0.1:5000/api/rag/uploadpdf", {
+                method: "POST",
+                body: formData,
+            });
+            const result = await response.json();
+            alert(result.status);
+        };
+
+        document.getElementById("send-query").onclick = async function () {
+            const queryInput = document.getElementById("query-input");
+            const query = queryInput.value;
+            if (!query) return;
+
+            const response = await fetch("http://127.0.0.1:5000/api/rag/query", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ query }),
+            });
+            const result = await response.json();
+            displayMessage("User", query);
+            
+            displayMessage("Bot", result.response);
+            queryInput.value = "";
+        };
+
+        function displayMessage(sender, message) {
+            const chatMessages = document.getElementById("chat-messages");
+            const messageDiv = document.createElement("div");
+            messageDiv.className = sender === "User" ? "user-message" : "bot-message";
+            
+            // Parse the message content with marked.js for markdown support
+            messageDiv.innerHTML = marked.parse(message);
+
+            // Append the message to the chat area
+            chatMessages.appendChild(messageDiv);
+
+            // Trigger MathJax to render any mathematical expressions
+            MathJax.typesetPromise([messageDiv]).catch(err => console.log("MathJax typeset error:", err));
+
+            // Scroll to the latest message
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
+</body>
+</html>

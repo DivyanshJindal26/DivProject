@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify
 from api import api
-import requests
 
 app = Flask(__name__)
 app.register_blueprint(api)
@@ -22,8 +21,13 @@ def home():
 def login_form():
     return render_template('login.html')
 
+# Route to display the login form
+@app.route('/chatbot', methods=['GET'])
+def chatbot():
+    return render_template('ragbot.html')
+
 
 
 # Run the app
 if __name__ == '__main__':
-    app.run(debug=True)  # debug=True for development; remove for production
+    app.run(debug=False)  # debug=True for development; remove for production

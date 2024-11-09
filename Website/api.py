@@ -3,7 +3,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_pymongo import PyMongo
 import jwt
 import datetime
-from functools import wraps
+from PyPDF2 import PdfReader
+from langchain.text_splitter import CharacterTextSplitter
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+import os
+from dotenv import load_dotenv
+import google.generativeai as genai
+
 
 
 import resetPwd
@@ -184,24 +191,7 @@ def getAllUsers():
 
 # TODO LIST SHIT STARTS
 
-# viewing all the todos of a user
-@api.route('/api/todo/view',methods=["GET"])
-def getTodos():
-    
-    user = getUser()
-    
-    if not user:
-        return jsonify({"message":"User not found. Login again"}), 403
-    
-    if not authCheck(request):
-        return jsonify({"message":"Not Authorised"}), 403
-    
-    try:
-        usertodos = todoDB.find_one({"_id":user['_id']})['todos']
-    except:
-        return jsonify({"message":"No todo list found"}), 400
-    
-    return jsonify(usertodos), 200
+#+
 
 # creating a new todo
 @api.route('/api/todo/create',methods=['POST'])
@@ -312,6 +302,61 @@ def deleteTodo():
     )
 
     return jsonify({"message":"Successfully deleted the todo task."})
+
+
+load_dotenv()
+chatbot_state = {"vector_storage": None, "chat_history": []}
+genai.configure(api_key="AIzaSyCg85vywMWcsCZ-Aw2cXOYYPvcF-CLs3Z4")
+
+
+# RAG CHATBOT
+@api.route('/api/rag/uploadpdf',methods=['POST'])
+def uploadPDF():
+    print('Starting upload')
+    files = request.files.getlist("pdf_files")
+    
+    documents = [file.stream for file in files]
+    raw_text = ""
+    for document in documents:
+        pdf_reader = PdfReader(document)
+        for page in pdf_reader.pages:
+            raw_text += page.extract_text()
+        print('extracted raw text.')
+            
+            
+    text_splitter = CharacterTextSplitter(
+        separator="\n", chunk_size=1000, chunk_overlap=200, length_function=len
+    )
+    text_chunks = text_splitter.split_text(raw_text)
+    
+    hf_embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    print('embeddings done')
+    vector_storage = FAISS.from_texts(texts=text_chunks, embedding=hf_embeddings)
+
+    # Save the vector storage and reset chat history
+    chatbot_state["vector_storage"] = vector_storage
+    chatbot_state["chat_history"] = []
+    
+    return jsonify({"status": "PDF processed and chatbot initialized"})
+
+@api.route('/api/rag/query',methods=['POST'])
+def askQuery():
+    if chatbot_state["vector_storage"] is None:
+        return jsonify({"error": "No conversation initialized"}), 400
+    
+    query = request.json.get("query")
+    
+    retriever = chatbot_state["vector_storage"].as_retriever()
+    docs = retriever.get_relevant_documents(query)
+    retrieved_text = "\n".join([doc.page_content for doc in docs])
+    print(retrieved_text)
+    prompt = f"Based on the following information, answer the user's question:\n\n{retrieved_text}\n\nUser's question: {query}"
+    
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    response = model.generate_content(prompt)
+    
+    chatbot_state["chat_history"].append({"user": query, "bot": response.text})
+    return jsonify({"response": response.text})
     
 if __name__ == '__main__':
     api.run(debug=True, threaded=False)
