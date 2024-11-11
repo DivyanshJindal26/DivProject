@@ -41,7 +41,7 @@ def authCheck(request):
 @api.route('/api/user/create',methods=['POST'])
 def createUser():
     if not authCheck(request):
-        return jsonify({"message":"Not Authorised"}), 403
+        return jsonify({"message":"Nota Authorised"}), 403
     
     data = request.get_json()
     username = data.get('username')
