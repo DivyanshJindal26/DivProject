@@ -23,29 +23,26 @@ jobs:
           python-version: '3.12'
 
       - name: Create and start virtual environment
+        working-directory: Website  # Change to your subfolder
         run: |
           python -m venv venv
           source venv/bin/activate
-          
-      - name: Going to the needed directory
-        run: |
-          cd ~/DivBot-2.0/Website
-          
+
       - name: Install dependencies
+        working-directory: Website  # Change to your subfolder
         run: pip install -r requirements.txt
         
       # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Zip artifact for deployment
-        run: zip release.zip ./* -r
+        working-directory: Website  # Change to your subfolder
+        run: zip -r ../release.zip ./*
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: |
-            release.zip
-            !venv/
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -65,13 +62,12 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8D782F5F988D47A9A878E5D2F3BE4586 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_0C012EBD80F1467FAE5F096E01528E4E }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_74537AB52C1E49E6BCC0F0FB2AFB1257 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
@@ -79,4 +75,3 @@ jobs:
         with:
           app-name: 'divyanshjindal'
           slot-name: 'Production'
-          
