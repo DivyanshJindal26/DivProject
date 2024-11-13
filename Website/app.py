@@ -5,7 +5,7 @@ app = Flask(__name__)
 app.register_blueprint(api)
 app.config['WTF_CSRF_ENABLED'] = False
 
-defaultAPI = 'http://127.0.0.1:5000/api/'
+defaultAPI = 'http://20.191.66.216:5000/api'
 headers = {
     'X-API-KEY': 'divyanshjindal',
     'Content-Type': 'application/json'

@@ -345,7 +345,7 @@
                 const password = document.getElementById('loginPassword').value;
                 setFormMessage(loginForm, 'error', 'Please wait...');
                 // Send login data to backend
-                fetch('http://127.0.0.1:5000/api/user/login', {
+                fetch('http://20.191.66.216:5000/api/user/login', {
                     method: 'POST',
                     headers: {
                         'X-API-KEY': 'divyanshjindal',
@@ -387,7 +387,7 @@
                 }
                 setFormMessage(createAccountForm, 'error', 'Please wait...');
                 // Send signup data to backend
-                fetch('http://127.0.0.1:5000/api/user/create', { // Ensure the full URL is used
+                fetch('http://20.191.66.216:5000/api/user/create', { // Ensure the full URL is used
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
