@@ -8,12 +8,14 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from dotenv import load_dotenv
+from werkzeug.utils import secure_filename
 import google.generativeai as genai
-
+import os
 
 
 import resetPwd
 import config
+
 
 api = Flask(__name__)
 
@@ -306,7 +308,8 @@ def deleteTodo():
 load_dotenv()
 chatbot_state = {"vector_storage": None, "chat_history": []}
 genai.configure(api_key="AIzaSyCg85vywMWcsCZ-Aw2cXOYYPvcF-CLs3Z4")
-
+UPLOAD_FOLDER = '/tmp/uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # RAG CHATBOT
 @api.route('/api/rag/uploadpdf',methods=['POST'])
@@ -314,13 +317,24 @@ def uploadPDF():
     print('Starting upload')
     files = request.files.getlist("pdf_files")
     
-    documents = [file.stream for file in files]
     raw_text = ""
-    for document in documents:
-        pdf_reader = PdfReader(document)
+    for file in files:
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(UPLOAD_FOLDER, filename)
+        
+        # Save the file temporarily
+        file.save(filepath)
+        print(f'Saved {filename} temporarily.')
+        
+        # Process the file
+        pdf_reader = PdfReader(filepath)
         for page in pdf_reader.pages:
             raw_text += page.extract_text()
-        print('extracted raw text.')
+        print('Extracted raw text.')
+        
+        # Delete the file after processing
+        os.remove(filepath)
+        print(f'Removed {filename} after processing.')
             
             
     text_splitter = CharacterTextSplitter(
