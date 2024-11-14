@@ -16,10 +16,11 @@
                 body: JSON.stringify({ phrases, language })
             });
             let translations = await response.json();
-            translations = JSON.parse(translations)
+            console.log(translations);
+            // translations = JSON.parse(translations)
             const list = document.getElementById("question-list");
             list.innerHTML = '';
-            Object.keys(translations).forEach((phrase, index) => {
+            phrases.forEach((phrase, index) => {
                 const translation = translations[phrase]; 
                 const question = document.createElement("div");
                 question.innerHTML = `

@@ -381,38 +381,32 @@ def sendPhrases():
     "temperature": 1,
     "top_p": 0.95,
     "top_k": 40,
-    "max_output_tokens": 8192,
-    "response_schema": content.Schema(
-        type = content.Type.OBJECT,
-        properties = {
-        "response": content.Schema(
-            type = content.Type.STRING,
-        ),
-        },
-    ),
     "response_mime_type": "application/json",
     }
+
     data = request.get_json()
     phrases = data['phrases']
     language = data['language']
     
-    prompt = f'''don't add ANY "json" stuff or ```. only the json.
-    Convert the following phrases into {language} and output the result in the json form of "phrase":"translation". 
-    so if the phrase is "hello" and "world" and the language is spansih you must give me {{"hello":"hola",
-    "world":"mundo"}}. ONLY SEND THAT JSON NOTHING ELSE. 
-    Additionally, don't put any special symbols. like convert the eta to a normal n, ú to u and so on. 
-    Phrases: {phrases}'''
+    prompt = f'''
+    Remove any special characters in english-written languages. Like convert ú to u, Ñ into N and so on.
+    Language: {language}
+    Phrases: {phrases}
+    '''
     model = genai.GenerativeModel(
         model_name="gemini-1.5-flash-8b",
         generation_config=generation_config,
+        system_instruction="Take the list of phrases given in english, and convert them to the given language. Remove any special characters in english-written languages. Like convert ú to u, Ñ into N and so on. Remember, you don't have to output anything except the response.\nSo if the phrases is ['hello','me'] and the language is Spanish, you must output\n{\"hello\":\"hola\",\"me\":\"me\"} as the response",
     )    
+    
     response = model.generate_content(prompt)
-    translations = json.loads(response.text)['response']
     print(f"Data: {data}")
     print('Phrases',phrases)
     print('Language',language)
     print('Prompt', prompt)
     print('Response', response)
+    translations = json.loads(response.text)
+
     print('Translations', translations)
     return jsonify(translations)
 
@@ -428,4 +422,4 @@ def checkAns():
 
     
 if __name__ == '__main__':
-    api.run(debug=False, threaded=False)
+    api.run(debug=True, threaded=False)
