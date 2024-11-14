@@ -13,21 +13,25 @@ headers = {
 # Define a route for the homepage
 @app.route('/')
 def home():
+    print('User IP', request.remote_addr)
     return render_template('index.html')  # Renders the HTML file
 
 # Route to display the login form
 @app.route('/login', methods=['GET'])
 def login_form():
+    print('User IP', request.remote_addr)
     return render_template('login.html')
 
 # Route to display the chatbot
 @app.route('/chatbot', methods=['GET'])
 def chatbot():
+    print('User IP', request.remote_addr)
     return render_template('ragbot.html')
 
 # route for translation
 @app.route('/translate', methods=['GET'])
 def translate():
+    print('User IP', request.remote_addr)
     return render_template('translate.html')
 
 
