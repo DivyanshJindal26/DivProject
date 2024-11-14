@@ -365,7 +365,7 @@ def askQuery():
     print(retrieved_text)
     prompt = f"Based on the following information, answer the user's question:\n\n{retrieved_text}\n\nUser's question: {query}"
     
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-1.5-flash-8b")
     response = model.generate_content(prompt)
     
     chatbot_state["chat_history"].append({"user": query, "bot": response.text})
@@ -384,7 +384,7 @@ def sendPhrases():
     "world":"mundo"}}. ONLY SEND THAT JSON NOTHING ELSE. don't add ANY "json" stuff or ```. only the json.
     Additionally, don't put any special symbols. like convert the eta to a normal n, ú to u and so on.
     Phrases: {phrases}'''
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    model = genai.GenerativeModel("gemini-1.5-flash-8b")
     response = model.generate_content(prompt)
     translations = response.text
     # print(f"Data: {data}")
