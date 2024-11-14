@@ -1,0 +1,26 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#question-list {
+    margin-top: 20px;
+}
+
+#question-list div {
+    margin-bottom: 15px;
+}
+
+.feedback {
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+input:disabled {
+    background-color: lightgray;  /* Gray out the input when disabled */
+    cursor: not-allowed;  /* Show a "not allowed" cursor when hovering over the disabled field */
+}
+
+span.feedback {
+    font-weight: bold;  /* Make the feedback text bold */
+    font-size: 14px;  /* Adjust the font size */
+}

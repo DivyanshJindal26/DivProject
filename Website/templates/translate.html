@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation Fill-in-the-Blank</title>
+    <link rel="stylesheet" href="../static/translate.css">
+    <script>
+        async function submitPhrases() {
+            const language = document.getElementById("language").value;
+            const phrases = document.getElementById("phrases").value.split(',').map(p => p.trim()); // Split and trim each phrase
+
+            const response = await fetch("/api/translate/send_phrases", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phrases, language })
+            });
+            let translations = await response.json();
+            translations = JSON.parse(translations)
+            const list = document.getElementById("question-list");
+            list.innerHTML = '';
+            Object.keys(translations).forEach((phrase, index) => {
+                const translation = translations[phrase]; 
+                const question = document.createElement("div");
+                question.innerHTML = `
+                    <p>${index + 1}) ${phrase}</p>
+                    <input type="text" placeholder="Enter translation">
+                    <button onclick="checkAnswer(this, '${translation}')">Submit</button>
+                    <span class="feedback"></span>
+                `;
+                list.appendChild(question);
+            });
+
+
+        }
+
+        async function checkAnswer(button, correctAnswer) {
+            const inputField = button.previousElementSibling;  // Get the input field
+            const userInput = inputField.value.trim();  // Get the user input and trim extra spaces
+            const feedbackSpan = button.nextElementSibling;  // Get the feedback span
+
+            if (userInput.toLowerCase() === correctAnswer.toLowerCase()) {
+                // If the input is correct
+                inputField.style.backgroundColor = '#d4edda';  // Light green background
+                inputField.style.color = '#155724';  // Darker green text color
+                inputField.style.borderColor = '#28a745';  // Dark green border
+                feedbackSpan.textContent = 'Correct!';  // Show "Correct!" text
+                feedbackSpan.style.color = 'green';  // Make feedback green
+                inputField.disabled = true;  // Disable the input field to prevent further edits
+            } else {
+                // If the input is incorrect
+                inputField.style.backgroundColor = '';  // Reset background color (if needed)
+                inputField.style.color = '';  // Reset text color
+                inputField.style.borderColor = '';  // Reset border color
+                feedbackSpan.textContent = 'Incorrect, try again.';  // Show incorrect message
+                feedbackSpan.style.color = 'red';  // Make feedback red
+            }
+        }
+
+    </script>
+</head>
+<body>
+    <h1>Translation Fill-in-the-Blank</h1>
+    <label for="language">Select Language:</label>
+    <select id="language">
+        <option value="english">English</option>
+        <option value="mandarin">Mandarin Chinese</option>
+        <option value="hindi">Hindi</option>
+        <option value="spanish">Spanish</option>
+        <option value="french">French</option>
+        <option value="arabic">Arabic</option>
+        <option value="bengali">Bengali</option>
+        <option value="russian">Russian</option>
+        <option value="portuguese">Portuguese</option>
+        <option value="urdu">Urdu</option>
+        <option value="indonesian">Indonesian</option>
+        <option value="german">German</option>
+        <option value="japanese">Japanese</option>
+        <option value="swahili">Swahili</option>
+        <option value="marathi">Marathi</option>
+        <option value="telugu">Telugu</option>
+        <option value="turkish">Turkish</option>
+        <option value="korean">Korean</option>
+        <option value="vietnamese">Vietnamese</option>
+        <option value="tamil">Tamil</option>
+    </select>
+    <br><br>
+    <label for="phrases">Enter Phrases (comma-separated):</label>
+    <input type="text" id="phrases">
+    <button onclick="submitPhrases()">Submit</button>
+    <br><br>
+    <div id="question-list"></div>
+</body>
+</html>

@@ -5,7 +5,6 @@ app = Flask(__name__)
 app.register_blueprint(api)
 app.config['WTF_CSRF_ENABLED'] = False
 
-defaultAPI = 'http://20.191.66.216:5000/api'
 headers = {
     'X-API-KEY': 'divyanshjindal',
     'Content-Type': 'application/json'
@@ -21,13 +20,18 @@ def home():
 def login_form():
     return render_template('login.html')
 
-# Route to display the login form
+# Route to display the chatbot
 @app.route('/chatbot', methods=['GET'])
 def chatbot():
     return render_template('ragbot.html')
+
+# route for translation
+@app.route('/translate', methods=['GET'])
+def translate():
+    return render_template('translate.html')
 
 
 
 # Run the app
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=5000)  # debug=True for development; remove for production
+    app.run(debug=True, host='0.0.0.0', port=5000)  # debug=True for development; remove for production
