@@ -364,7 +364,7 @@ def askQuery():
     docs = retriever.get_relevant_documents(query)
     retrieved_text = "\n".join([doc.page_content for doc in docs])
     print(retrieved_text)
-    prompt = f"Based on the following information, answer the user's question:\n\n{retrieved_text}\n\nUser's question: {query}"
+    prompt = f"Based on the following information, answer the user's question:\n\n{retrieved_text}\n\nIf the question isn't present in the text, you can answer based on your mind\n\nUser's question: {query}"
     
     model = genai.GenerativeModel("gemini-1.5-flash-8b")
     response = model.generate_content(prompt)
@@ -422,4 +422,4 @@ def checkAns():
 
     
 if __name__ == '__main__':
-    api.run(debug=True, threaded=False)
+    api.run(debug=False, threaded=False)
