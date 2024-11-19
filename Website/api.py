@@ -6,13 +6,16 @@ import datetime
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.vectorstores import FAISS
+from chromadb import Client
+from chromadb.config import Settings
+from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 import google.generativeai as genai
 import os
 from google.ai.generativelanguage_v1beta.types import content
 import json
+import numpy as np
 
 import resetPwd
 import config
@@ -312,8 +315,7 @@ genai.configure(api_key="AIzaSyCg85vywMWcsCZ-Aw2cXOYYPvcF-CLs3Z4")
 UPLOAD_FOLDER = '/tmp/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# RAG CHATBOT
-@api.route('/api/rag/uploadpdf',methods=['POST'])
+@api.route('/api/rag/uploadpdf', methods=['POST'])
 def uploadPDF():
     print('Starting upload')
     files = request.files.getlist("pdf_files")
@@ -336,32 +338,60 @@ def uploadPDF():
         # Delete the file after processing
         os.remove(filepath)
         print(f'Removed {filename} after processing.')
-            
-            
+    
+    # Split text into chunks
     text_splitter = CharacterTextSplitter(separator="\n", chunk_size=1000, chunk_overlap=200, length_function=len)
     text_chunks = text_splitter.split_text(raw_text)
     
+    # Generate embeddings
     hf_embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    print('embeddings done')
-    vector_storage = FAISS.from_texts(texts=text_chunks, embedding=hf_embeddings)
+    embeddings = [hf_embeddings.embed_query(chunk) for chunk in text_chunks]
+    print('Embeddings generated.')
 
-    # Save the vector storage and reset chat history
-    chatbot_state["vector_storage"] = vector_storage
+    # Initialize Chroma
+    embedding_function = SentenceTransformerEmbeddingFunction(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    chroma_client = Client(Settings(persist_directory="/tmp/chroma_db"))
+    collection = chroma_client.get_or_create_collection(
+        name="rag_collection",
+        embedding_function=embedding_function
+    )
+    print('Chroma collection created.')
+    
+    # Add documents to Chroma
+    for i, chunk in enumerate(text_chunks):
+        collection.add(
+            ids=[f"doc_{i}"],
+            documents=[chunk],
+            metadatas=[{"chunk_index": i}],
+            embeddings=[embeddings[i]]
+        )
+    print('Documents added to Chroma collection.')
+
+    # Save Chroma collection in chatbot state
+    chatbot_state["vector_storage"] = collection
     chatbot_state["chat_history"] = []
     
     return jsonify({"status": "PDF processed and chatbot initialized"})
 
-@api.route('/api/rag/query',methods=['POST'])
+@api.route('/api/rag/query', methods=['POST'])
 def askQuery():
     if chatbot_state["vector_storage"] is None:
         return jsonify({"error": "No conversation initialized"}), 400
     
     query = request.json.get("query")
     
-    retriever = chatbot_state["vector_storage"].as_retriever()
-    docs = retriever.get_relevant_documents(query)
-    retrieved_text = "\n".join([doc.page_content for doc in docs])
+    # Perform similarity search in Chroma
+    collection = chatbot_state["vector_storage"]
+    results = collection.query(
+        query_texts=[query],
+        n_results=5
+    )
+    
+    # Retrieve the text chunks
+    retrieved_text = "\n".join(results["documents"][0])
     print(retrieved_text)
+    
+    # Generate response
     prompt = f"Based on the following information, answer the user's question:\n\n{retrieved_text}\n\nIf the question isn't present in the text, you can answer based on your mind\n\nUser's question: {query}"
     
     model = genai.GenerativeModel("gemini-1.5-flash-8b")
