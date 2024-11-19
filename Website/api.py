@@ -13,8 +13,6 @@ import google.generativeai as genai
 import os
 from google.ai.generativelanguage_v1beta.types import content
 import json
-import chromadb
-from chromadb.config import Settings
 
 import resetPwd
 import config
@@ -311,69 +309,46 @@ def deleteTodo():
 load_dotenv()
 chatbot_state = {"vector_storage": None, "chat_history": []}
 genai.configure(api_key="AIzaSyCg85vywMWcsCZ-Aw2cXOYYPvcF-CLs3Z4")
-# Chroma setup
-CHROMA_DB_DIR = "./chroma_db"
-chroma_client = chromadb.Client(Settings(
-    persist_directory=CHROMA_DB_DIR,  # Directory to store Chroma database
-    chroma_db_impl="duckdb+parquet"  # Backend database
-))
 UPLOAD_FOLDER = '/tmp/uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # RAG CHATBOT
 @api.route('/api/rag/uploadpdf',methods=['POST'])
-# RAG Chatbot API
-@api.route('/api/rag/uploadpdf', methods=['POST'])
 def uploadPDF():
     print('Starting upload')
     files = request.files.getlist("pdf_files")
-
+    
     raw_text = ""
     for file in files:
         filename = secure_filename(file.filename)
         filepath = os.path.join(UPLOAD_FOLDER, filename)
-
+        
         # Save the file temporarily
         file.save(filepath)
         print(f'Saved {filename} temporarily.')
-
+        
         # Process the file
         pdf_reader = PdfReader(filepath)
         for page in pdf_reader.pages:
             raw_text += page.extract_text()
         print('Extracted raw text.')
-
+        
         # Delete the file after processing
         os.remove(filepath)
         print(f'Removed {filename} after processing.')
-
-    # Split text into chunks
-    text_splitter = CharacterTextSplitter(
-        separator="\n", chunk_size=1000, chunk_overlap=200, length_function=len
-    )
+            
+            
+    text_splitter = CharacterTextSplitter(separator="\n", chunk_size=1000, chunk_overlap=200, length_function=len)
     text_chunks = text_splitter.split_text(raw_text)
-
-    # Create embeddings for chunks
+    
     hf_embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    embeddings = [hf_embeddings.embed_query(chunk) for chunk in text_chunks]
-    print('Embeddings generated.')
+    print('embeddings done')
+    vector_storage = FAISS.from_texts(texts=text_chunks, embedding=hf_embeddings)
 
-    # Initialize Chroma collection
-    collection_name = "pdf_chunks"
-    collection = chroma_client.get_or_create_collection(name=collection_name)
-
-    # Add data to Chroma
-    collection.add(
-        embeddings=embeddings,
-        metadatas=[{"text": chunk} for chunk in text_chunks],
-        ids=[str(i) for i in range(len(text_chunks))]
-    )
-    print('Data added to Chroma.')
-
-    # Update chatbot state
-    chatbot_state["vector_storage"] = collection
+    # Save the vector storage and reset chat history
+    chatbot_state["vector_storage"] = vector_storage
     chatbot_state["chat_history"] = []
-
+    
     return jsonify({"status": "PDF processed and chatbot initialized"})
 
 @api.route('/api/rag/query',methods=['POST'])
