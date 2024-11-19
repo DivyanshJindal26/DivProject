@@ -13,6 +13,8 @@ import google.generativeai as genai
 import os
 from google.ai.generativelanguage_v1beta.types import content
 import json
+import chromadb
+from chromadb.config import Settings
 
 import resetPwd
 import config
