@@ -317,6 +317,9 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 @api.route('/api/rag/uploadpdf', methods=['POST'])
 def uploadPDF():
+    
+    if not authCheck(request):
+        return jsonify({"message":"Not Authorised"}), 403
     print('Starting upload')
     files = request.files.getlist("pdf_files")
     
@@ -404,6 +407,10 @@ def askQuery():
 # LANGUAGE TRANSLATOR
 @api.route('/api/translate/send_phrases',methods=['POST'])
 def sendPhrases():
+    
+    if not authCheck(request):
+        return jsonify({"message":"Not Authorised"}), 403
+    
     # Create the model
     generation_config = {
     "temperature": 1,
@@ -440,6 +447,9 @@ def sendPhrases():
 
 @api.route('/api/translate/check_answer',methods=['POST'])
 def checkAns():
+
+    if not authCheck(request):
+        return jsonify({"message":"Not Authorised"}), 403
     data = request.get_json()
     correct_answer = data['correct_answer']
     user_answer = data['user_answer']

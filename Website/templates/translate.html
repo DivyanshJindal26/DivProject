@@ -12,7 +12,7 @@
 
             const response = await fetch("/api/translate/send_phrases", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 'X-API-KEY': 'divyanshjindal', "Content-Type": "application/json" },
                 body: JSON.stringify({ phrases, language })
             });
             let translations = await response.json();

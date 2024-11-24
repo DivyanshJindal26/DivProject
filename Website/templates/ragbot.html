@@ -55,7 +55,7 @@
 
             const response = await fetch("api/rag/query", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 'X-API-KEY': 'divyanshjindal', "Content-Type": "application/json" },
                 body: JSON.stringify({ query }),
             });
             const result = await response.json();
