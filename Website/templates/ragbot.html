@@ -42,6 +42,7 @@
             }
             const response = await fetch("api/rag/uploadpdf", {
                 method: "POST",
+                headers: { 'X-API-KEY': 'divyanshjindal'},
                 body: formData,
             });
             const result = await response.json();
