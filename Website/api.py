@@ -397,7 +397,7 @@ def askQuery():
     # Generate response
     prompt = f"Based on the following information, answer the user's question:\n\n{retrieved_text}\n\nIf the question isn't present in the text, you can answer based on your mind\n\nUser's question: {query}"
     
-    model = genai.GenerativeModel("gemini-1.5-flash-8b")
+    model = genai.GenerativeModel("gemini-flash")
     response = model.generate_content(prompt)
     
     chatbot_state["chat_history"].append({"user": query, "bot": response.text})
