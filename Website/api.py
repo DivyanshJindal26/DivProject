@@ -42,7 +42,6 @@ def authCheck(request):
 
 # USER LOGIN, FORGET PASSWORD, VERIFY OTP, AND CREATE ACCOUNT STARTS
 
-
 # creating new user
 @api.route('/api/user/create',methods=['POST'])
 def createUser():
@@ -170,7 +169,7 @@ def logout():
     return jsonify({"message":"Successfully logged out"}), 200
     
     
-@api.route('/api/users',methods=['GET'])
+@api.route('/api/user',methods=['GET'])
 def getAllUsers():
     user = getUser()
     if not user:
@@ -447,7 +446,6 @@ def sendPhrases():
 
 @api.route('/api/translate/check_answer',methods=['POST'])
 def checkAns():
-
     if not authCheck(request):
         return jsonify({"message":"Not Authorised"}), 403
     data = request.get_json()

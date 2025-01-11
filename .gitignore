@@ -7,3 +7,4 @@ MobaXterm backup.zip
 node_modules/
 googlecreds.json
 .env
+API/node_modules/
