@@ -37,17 +37,34 @@
             event.preventDefault();
             const formData = new FormData();
             const files = document.getElementById("pdf-files").files;
+
             for (let i = 0; i < files.length; i++) {
-                formData.append("pdf_files", files[i]);
+                formData.append("pdf_files[]", files[i]);
             }
-            const response = await fetch("api/rag/uploadpdf", {
-                method: "POST",
-                headers: { 'X-API-KEY': 'divyanshjindal'},
-                body: formData,
-            });
-            const result = await response.json();
-            alert(result.status);
+
+            for (var pair of formData.entries()) {
+                console.log(pair[0] + ', ' + pair[1].name);
+            }
+
+            try {
+                const response = await fetch("http://localhost:5000/api/rag/uploadpdf", {
+                    method: "POST",
+                    headers: { 'X-API-KEY': 'divyanshjindal' },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                alert(result.status);
+            } catch (error) {
+                console.error('Error uploading PDF:', error);
+                alert('Failed to upload PDF');
+            }
         };
+
 
         document.getElementById("send-query").onclick = async function () {
             const queryInput = document.getElementById("query-input");
