@@ -1,0 +1,2 @@
+This is just a project I made. It has user accounts complete with login, logout which incorporated user tokens for secure browser logins, a simple RAG chatbot, todo lists (with complete authentiction), and translate features.
+It also has the website made using flask for the frontend (Frontend was completely taken from ChatGPT/Google lol), and an API which is also in flask built completely by me for the backend. I am currently in the process of changing the API from python to javascript express and most of that is done.
