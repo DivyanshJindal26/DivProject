@@ -5,6 +5,6 @@ MobaXterm_Personal_24.1.exe
 MobaXterm.ini
 MobaXterm backup.zip
 node_modules/
-googlecreds.json
 .env
 API/node_modules/
+Website/config.py

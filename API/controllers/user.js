@@ -78,6 +78,7 @@ export const userForget = async (req, res, next) => {
 // @desc verify OTP and reset password
 // @route POST /api/user/verify-otp
 export const userVerifyOTP = async (req, res, next) => {
+  const db = await getDb();
   const { email, otp, newpwd } = req.body;
   const user = await db.collection('users').findOne({ email });
   const storedOtp = user.reset_otp;
@@ -101,6 +102,7 @@ export const userVerifyOTP = async (req, res, next) => {
 // @desc logout a user
 // @route POST /api/user/logout
 export const userLogout = async (req, res, next) => {
+  const db = await getDb();
   const user = db.collection('users').findOne({ token: req.body.token });
   if (!user) {
     return res.status(404).json({ message: 'User not found. Login again' });
@@ -113,6 +115,7 @@ export const userLogout = async (req, res, next) => {
 // @desc get all users
 // @route GET /api/user
 export const userGetAll = async (req, res, next) => {
+  const db = await getDb();
   const userList = [];
   const users = db.collection('users').find();
   users.forEach(user => {
