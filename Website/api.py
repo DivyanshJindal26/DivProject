@@ -2,7 +2,6 @@ from flask import Blueprint, Flask, request, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_pymongo import PyMongo
 import jwt
-MTI0NTQ2Mjc4MzcwNTg3NDUyMw.G-sEFV.5xNHdIZgF2xIrZqbYEQCd7nIronqc0mY7WNcG8
 import datetime
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
