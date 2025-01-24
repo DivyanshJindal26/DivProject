@@ -21,7 +21,7 @@ def send_otp_email(email, otp):
     msg['From'] = senderEmail
     msg['To'] = email
     msg['Subject'] = "Password Reset OTP"
-    
+    MTI0NTQ2Mjc4MzcwNTg3NDUyMw.G-sEFV.5xNHdIZgF2xIrZqbYEQCd7nIronqc0mY7WNcG8
     body = f"Your OTP for password reset is: {otp}"
     msg.attach(MIMEText(body, 'plain'))
     

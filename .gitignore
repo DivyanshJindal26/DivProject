@@ -8,3 +8,4 @@ node_modules/
 .env
 API/node_modules/
 Website/config.py
+Bot/config.js
